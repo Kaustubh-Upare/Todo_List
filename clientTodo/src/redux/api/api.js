@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { getMyTasks } from "../../../../serverTodo/controller/taskHandler";
 
 
 const api=createApi({
@@ -15,48 +14,95 @@ const api=createApi({
             providesTags:['tasks']
         }),
         addNewTask:builder.mutation({
-            query:(frm)=>({
-                url:'/new',
+            query:({title,priority})=>({
+                url:'task/new',
                 credentials:'include',
                 method:'post',
-                body:frm
+                body:{title,priority},
+                headers:{
+                    "Content-Type":"application/json"
+                }
             }),
             invalidatesTags:['tasks'],
-            async onQueryStarted(frm,{dispatch,queryFulfilled}){
-                const patchResult=dispatch(
-                    api.util.updateQueryData('getMyTasks',undefined,(draft)=>{
-                        draft.unshift({id: crypto.randomUUID(),...frm});
-                    })
-                );
-                try {
-                    await queryFulfilled;
-                } catch (error) {
-                    patchResult.undo();
-                }
-            }
+            // async onQueryStarted(frm,{dispatch,queryFulfilled}){
+            //     const patchResult=dispatch(
+            //         api.util.updateQueryData('getMyTasks',undefined,(draft)=>{
+            //             draft.unshift({id: crypto.randomUUID(),...frm});
+            //         })
+            //     );
+            //     try {
+            //         await queryFulfilled;
+            //     } catch (error) {
+            //         patchResult.undo();
+            //     }
+            // }
         }),
         updateTask:builder.mutation({
-            query:(frm)=>({
+            query:({taskId,title,priority})=>({
                 url:'/task/update',
                 credentials:'include',
                 method:'put',
-                body:frm,
+                body:{taskId,title,priority},
             }),
             invalidatesTags:['tasks'],
             
         }),
         deleteTask:builder.mutation({
-            query:(id)=>({
+            query:({id})=>({
                 url:'/task/delete',
                 credentials:'include',
                 method:'DELETE',
-                body:id,
+                body:{id},
             }),
-            invalidatesTags:['tasks']
+            invalidatesTags:['tasks'],
+            async onQueryStarted({id},{dispatch,queryFulfilled}){
+                const ptResult=dispatch(
+                    api.util.updateQueryData('getMyTasks',undefined,(currentData)=>{
+                        if(!currentData || !currentData.msg) return;
+
+                        currentData.msg=currentData.msg.filter((t)=>t._id !==id)
+                    })
+                );
+                try {
+                    await queryFulfilled;
+                } catch (error) {
+                    ptResult.undo();
+                }
+            }
+        }),
+        changeCompletion:builder.mutation({
+            query:({id,completed})=>({
+                url:'task/changeCompletion',
+                method:'put',
+                body:{id,completed},
+                headers:{
+                    "Content-Type":"application/json"
+                },
+            }),
+            invalidatesTags:['tasks'],
+            async onQueryStarted({id,completed},{dispatch,queryFulfilled}){
+                const patchResult=dispatch(
+                    api.util.updateQueryData('getMyTasks',undefined,(currentData)=>{
+                        if(!currentData || !currentData.msg) return;
+                        
+                        const taskIndex=currentData.msg.findIndex((el)=>el._id === id);
+                        if(taskIndex !==-1){
+                            currentData.msg[taskIndex] = { ...currentData.msg[taskIndex], completed };
+                        }
+
+                    })
+                );
+                try {
+                    await queryFulfilled;
+                } catch (error) {
+                    patchResult.undo()
+                }
+            }
         })
     })
 })
 
 export default api;
 
-const {useGetMyTasksQuery,useAddNewTaskMutation,useDeleteTaskMutation,useUpdateTaskMutation}=api
+export const {useGetMyTasksQuery,useAddNewTaskMutation,useDeleteTaskMutation,
+    useUpdateTaskMutation,useChangeCompletionMutation}=api

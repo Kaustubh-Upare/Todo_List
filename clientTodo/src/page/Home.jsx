@@ -1,11 +1,14 @@
 import {Box, CircularProgress, Container, IconButton, Paper, TextField, Typography} from '@mui/material'
-import {Add as AddIcon} from '@mui/icons-material'
+import {Add as AddIcon, Assignment, Title} from '@mui/icons-material'
 import { useState } from 'react'
 import TodoItem from '../Component/shared/TodoItem'
+import {useAddNewTaskMutation, useGetMyTasksQuery} from '../redux/api/api'
+import { useAsyncMutation } from '../Component/Hooks/hook'
+
 // 242424
 const Home=()=>{
   const [newTask,setNewTask]=useState("")
-
+  
   const tasksList=[
     {
       "id": 1,
@@ -44,9 +47,17 @@ const Home=()=>{
     }
   ]
 
+  const {data:MyTasksList,isLoading:MyTaskLoading}=useGetMyTasksQuery();
 
-  const handleSubmit=()=>{
-    console.log("handleSubmit")
+  console.log("da",MyTasksList)
+  const [AddNewTask]=useAsyncMutation(useAddNewTaskMutation)
+
+  const handleSubmit=(e)=>{
+    e.preventDefault();
+   
+    console.log("osd",newTask);
+  
+   AddNewTask("Creating The Task",{title:newTask})
   }
 
   const updateTask=()=>{
@@ -66,7 +77,7 @@ const Home=()=>{
       <Container maxWidth="sm">
         <Paper  elevation={3} sx={{ p: 3, bgcolor: "#2d3748", color: "#e2e8f0", borderRadius: 2 }}>
         <Box display="flex" alignItems="center" mb={2}>
-            <AddIcon sx={{ fontSize: 32, color: "#4c51bf" }} />
+            <Assignment sx={{ fontSize: 32, color: "#4c51bf" }} />
             <Typography variant="h6" ml={2} fontWeight={600}>
               My Tasks
             </Typography>
@@ -78,7 +89,9 @@ const Home=()=>{
               variant="standard"
               fullWidth
               placeholder="Add a new task"
-              InputProps={{ disableUnderline: true, style: { color: "#e2e8f0" } }}
+              InputProps={{ disableUnderline: true, style: { color: "#e2e8f0" } ,
+
+            }}
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
               required
@@ -95,10 +108,20 @@ const Home=()=>{
             ) : isError ? (
               <Typography textAlign="center" color="error">{error?.message || "Something went wrong"}</Typography>
             ) : ( */}
-              {
+            { MyTaskLoading ?(
+              <Box display="flex" justifyContent="center"><CircularProgress color="inherit" /></Box>
+            ) :(
+              MyTasksList.msg.map((task)=>(
+                <TodoItem key={task._id} task={task} updateTask={updateTask} deleteTask={deleteTask} />
+              ))
+            )}
+
+              {/* {
               tasksList.map((task) => (
                 <TodoItem key={task.id} task={task} updateTask={updateTask} deleteTask={deleteTask} />
-              ))}
+              ))} */}
+
+
               {/* )) */}
             {/* )} */}
           </Box>
