@@ -1,4 +1,4 @@
-import {Box, CircularProgress, Container, IconButton, Paper, TextField, Typography} from '@mui/material'
+import {Box, CircularProgress, Container, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, TextField, Typography} from '@mui/material'
 import {Add as AddIcon, Assignment, Title} from '@mui/icons-material'
 import { useState } from 'react'
 import TodoItem from '../Component/shared/TodoItem'
@@ -8,45 +8,8 @@ import { useAsyncMutation } from '../Component/Hooks/hook'
 // 242424
 const Home=()=>{
   const [newTask,setNewTask]=useState("")
+  const [selectedPriority, setSelectedPriority] = useState("all");
   
-  const tasksList=[
-    {
-      "id": 1,
-      "value": "Buy groceries",
-      "completed": true
-    },
-    {
-      "id": 2,
-      "value": "Walk the dog",
-      "completed": true
-    },
-    {
-      "id": 3,
-      "value": "Finish work project",
-      "completed": false
-    },
-    {
-      "id": 4,
-      "value": "Read a book",
-      "completed": true
-    },
-    {
-      "id": 5,
-      "value": "Exercise",
-      "completed": false
-    },
-    {
-      "value": "Complete Redux",
-      "completed": true,
-      "id": 6
-    },
-    {
-      "value": "df",
-      "completed": false,
-      "id": 7
-    }
-  ]
-
   const {data:MyTasksList,isLoading:MyTaskLoading}=useGetMyTasksQuery();
 
   console.log("da",MyTasksList)
@@ -68,6 +31,14 @@ const Home=()=>{
     console.log("delete")
   }
 
+  const priorityOrder = { high: 3, medium: 2, low: 1 };
+  const filteredTasks = MyTasksList?.msg?.filter(task => 
+    selectedPriority === "all" || task.priority === selectedPriority
+  );
+  
+  // const sortedTasks = MyTasksList?.msg?.slice().sort(
+  //   (a, b) => (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0)
+  // );
 
   return(
   <Box display='flex' justifyContent={'center'}
@@ -101,6 +72,19 @@ const Home=()=>{
             </IconButton>
         </Box>
 
+        <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel sx={{ color: "#e2e8f0" }}>Filter by Priority</InputLabel>
+            <Select
+              value={selectedPriority}
+              onChange={(e) => setSelectedPriority(e.target.value)}
+              sx={{ color: "#e2e8f0", '.MuiSvgIcon-root': { color: '#e2e8f0' } }}
+            >
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="high">High</MenuItem>
+              <MenuItem value="medium">Medium</MenuItem>
+              <MenuItem value="low">Low</MenuItem>
+            </Select>
+          </FormControl>
 
         <Box sx={{ maxHeight: { xs: 300, sm: 400 }, overflowY: "auto" }}>
             {/* {isLoading ? (
@@ -110,8 +94,14 @@ const Home=()=>{
             ) : ( */}
             { MyTaskLoading ?(
               <Box display="flex" justifyContent="center"><CircularProgress color="inherit" /></Box>
-            ) :(
-              MyTasksList.msg.map((task)=>(
+            ) : filteredTasks.length === 0 ?(
+              <Box display="flex" justifyContent="center" mt={2}>
+              <Typography variant="h6" color="textSecondary">
+                No tasks available. Add a task to get started!
+              </Typography>
+            </Box>
+            ):(
+              filteredTasks.map((task)=>(
                 <TodoItem key={task._id} task={task} updateTask={updateTask} deleteTask={deleteTask} />
               ))
             )}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios'
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -62,7 +63,6 @@ const Signup = () => {
      const toastId=toast.loading("wait a couple of minutes");
      try {
          const name=`${firstName} ${lastName}`;
-         console.log(role)
          const {data}=await axios.post("http://localhost:3000/signup",{name,email,password},
          {
            withCredentials:true,
@@ -71,7 +71,7 @@ const Signup = () => {
          
          console.log(data)
         toast.success(data?.msg,{id:toastId});
-          navigate('/dashboard')
+          navigate('/Todo')
           }catch (error) {
            console.log(error)
            toast.error(error?.response?.data?.message || "Something Went Wrong",{id:toastId}) 
@@ -86,7 +86,7 @@ const githubHandler=()=>{
   try {
     window.location.href = "http://localhost:3000/auth/github";
       console.log(data)   
-      navigate('/dashboard')
+      navigate('/Todo')
   } catch (error) {
       console.log(error)
   }
@@ -97,7 +97,7 @@ const googleLogin = async() => {
     window.location.href = "http://localhost:3000/auth/google";
       console.log(data)
       
-      navigate('/dashboard')
+      navigate('/Todo')
       // window.location.href="/dashboard";
   } catch (error) {
       console.log(error)
@@ -106,10 +106,16 @@ const googleLogin = async() => {
   
   return (
     
-    <Container maxWidth="sm" sx={{ display: "flex" ,justifyContent: "center", alignItems: "center", height: "100vh" }}>
-      <Paper elevation={3} sx={{ padding: 4, width: "100%", maxWidth: 450, textAlign: "center" }}>
+    <Container maxWidth="sm"
+     sx={{ display: "flex" ,justifyContent: "center", alignItems: "center", height: "100vh",
+      backgroundColor: "#222"
+      }}
+     >
+      <Paper elevation={3} sx={{ padding: 4, width: "100%", maxWidth: 450, textAlign: "center",
+        backgroundColor:"rgb(255, 255, 255)"
+       }}>
         <Typography variant="h4" fontWeight={600} fontFamily="Poppins" color="rgb(68, 66, 66)" gutterBottom>
-          Sign In
+          Sign Up
         </Typography>
 
         <Grid container>

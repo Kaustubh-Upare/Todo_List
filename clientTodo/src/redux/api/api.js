@@ -75,6 +75,7 @@ const api=createApi({
                 url:'task/changeCompletion',
                 method:'put',
                 body:{id,completed},
+                credentials:'include',
                 headers:{
                     "Content-Type":"application/json"
                 },

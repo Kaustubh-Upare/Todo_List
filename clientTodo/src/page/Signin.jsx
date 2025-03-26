@@ -24,7 +24,7 @@ const Signin = () => {
         headers: { "Content-Type": "application/json" }
       });
       toast.success(data?.msg);
-      navigate('/todo');
+      navigate('/Todo');
     } catch (error) {
       toast.error(error?.response?.data?.message || "Something went wrong");
     } finally {

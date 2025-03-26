@@ -1,13 +1,28 @@
-import { CheckCircle, Delete, Edit, RadioButtonUnchecked } from "@mui/icons-material"
-import { Checkbox, IconButton, ListItem, ListItemIcon, ListItemText, Tooltip } from "@mui/material"
+import { CheckCircle, Delete, Edit, RadioButtonUnchecked, Star } from "@mui/icons-material"
+import { Badge, Checkbox, IconButton, ListItem, ListItemIcon, ListItemText, Tooltip } from "@mui/material"
 import { lazy, useState } from "react"
 import { useChangeCompletionMutation, useDeleteTaskMutation } from "../../redux/api/api";
 
 const LazyEditTaskDialog=lazy(()=>import('../Dialog/EditTaskDialog'));
 
 const TodoItem=({ task, updateTask, deleteTask })=>{
-  const {_id, title,completed } = task
+  const {_id, title,completed,priority } = task
   const [openDialogEdit,setOpenDialogEdit]=useState(false);
+
+  const getBadgeColor = (priority) => {
+      switch (priority) {
+        case "high":
+          return "error"; // Red badge
+        case "medium":
+          return "warning"; // Orange badge
+        case "low":
+          return "success"; // Green badge
+        default:
+          return "default";
+      }
+    };
+  
+
 
   const [changeCompletion]=useChangeCompletionMutation()
   const [deleteTasky]=useDeleteTaskMutation();
@@ -37,6 +52,15 @@ const TodoItem=({ task, updateTask, deleteTask })=>{
         // "&:hover": { backgroundColor: "rgb(112, 109, 109)",borderRadius:5 },
       }}
     >
+      <Badge 
+         color={getBadgeColor(priority)}
+         badgeContent={priority === "medium" ?"sad" : priority === "high" ? <><Star/> <Star/> </> : ""}
+         variant="dot"
+         overlap="circular"
+         invisible={priority === "low"} // Hide for low priority
+         sx={{ mr: 1 }}
+      />
+
       <ListItemIcon >
         <Checkbox
           icon={<RadioButtonUnchecked />}
