@@ -1,13 +1,62 @@
 import {Box, CircularProgress, Container, IconButton, Paper, TextField, Typography} from '@mui/material'
 import {Add as AddIcon} from '@mui/icons-material'
 import { useState } from 'react'
+import TodoItem from '../Component/shared/TodoItem'
 // 242424
 const Home=()=>{
   const [newTask,setNewTask]=useState("")
 
+  const tasksList=[
+    {
+      "id": 1,
+      "value": "Buy groceries",
+      "completed": true
+    },
+    {
+      "id": 2,
+      "value": "Walk the dog",
+      "completed": true
+    },
+    {
+      "id": 3,
+      "value": "Finish work project",
+      "completed": false
+    },
+    {
+      "id": 4,
+      "value": "Read a book",
+      "completed": true
+    },
+    {
+      "id": 5,
+      "value": "Exercise",
+      "completed": false
+    },
+    {
+      "value": "Complete Redux",
+      "completed": true,
+      "id": 6
+    },
+    {
+      "value": "df",
+      "completed": false,
+      "id": 7
+    }
+  ]
+
+
   const handleSubmit=()=>{
     console.log("handleSubmit")
   }
+
+  const updateTask=()=>{
+    console.log("update")
+  }
+
+  const deleteTask=()=>{
+    console.log("delete")
+  }
+
 
   return(
   <Box display='flex' justifyContent={'center'}
@@ -39,6 +88,20 @@ const Home=()=>{
             </IconButton>
         </Box>
 
+
+        <Box sx={{ maxHeight: { xs: 300, sm: 400 }, overflowY: "auto" }}>
+            {/* {isLoading ? (
+              <Box display="flex" justifyContent="center"><CircularProgress color="inherit" /></Box>
+            ) : isError ? (
+              <Typography textAlign="center" color="error">{error?.message || "Something went wrong"}</Typography>
+            ) : ( */}
+              {
+              tasksList.map((task) => (
+                <TodoItem key={task.id} task={task} updateTask={updateTask} deleteTask={deleteTask} />
+              ))}
+              {/* )) */}
+            {/* )} */}
+          </Box>
       
 
         </Paper>
